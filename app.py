@@ -2,8 +2,11 @@
 import json
 import os
 import re
+import io
 from openai import OpenAI
 from dotenv import load_dotenv
+from PyPDF2 import PdfReader
+from docx import Document
 
 load_dotenv()
 
@@ -102,6 +105,33 @@ def last_names():
             "Return JSON: {\"last_names\": [\"name1\", \"name2\"]}\n\n" + text
         )
         return jsonify({'last_names': result.get('last_names', [])})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+# ---------- File text extraction ----------
+
+@app.route('/api/extract-text', methods=['POST'])
+def extract_text():
+    if 'file' not in request.files:
+        return jsonify({'error': 'No file provided'}), 400
+
+    file = request.files['file']
+    filename = file.filename.lower()
+
+    try:
+        if filename.endswith('.txt'):
+            text = file.read().decode('utf-8')
+        elif filename.endswith('.pdf'):
+            reader = PdfReader(io.BytesIO(file.read()))
+            text = '\n'.join(page.extract_text() or '' for page in reader.pages)
+        elif filename.endswith('.docx'):
+            doc = Document(io.BytesIO(file.read()))
+            text = '\n'.join(p.text for p in doc.paragraphs)
+        else:
+            return jsonify({'error': 'Unsupported format. Use .txt, .pdf, or .docx'}), 400
+
+        return jsonify({'text': text})
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 

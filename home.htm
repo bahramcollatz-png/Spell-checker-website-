@@ -265,15 +265,34 @@
       // ---------- FILE READING ----------
       const fileInput = document.getElementById('fileInput');
       const inputText = document.getElementById('inputText');
-      fileInput?.addEventListener('change', (e) => {
+      fileInput?.addEventListener('change', async (e) => {
         const file = e.target.files[0];
         if (!file) return;
-        if (file.name.toLowerCase().endsWith('.txt')) {
+        const ext = file.name.toLowerCase().split('.').pop();
+
+        if (ext === 'txt') {
           const reader = new FileReader();
           reader.onload = () => { inputText.value = reader.result; };
           reader.readAsText(file);
+        } else if (ext === 'pdf' || ext === 'docx') {
+          inputText.value = 'Extracting text from file…';
+          try {
+            const formData = new FormData();
+            formData.append('file', file);
+            const res = await fetch('/api/extract-text', { method: 'POST', body: formData });
+            const data = await res.json();
+            if (data.text) {
+              inputText.value = data.text;
+            } else {
+              inputText.value = '';
+              alert(data.error || 'Failed to extract text from file.');
+            }
+          } catch (err) {
+            inputText.value = '';
+            alert('File extraction failed: ' + err.message);
+          }
         } else {
-          alert('For .pdf/.docx please use a backend converter. Only .txt is processed directly.');
+          alert('Unsupported file type. Please use .txt, .pdf, or .docx');
         }
       });
 
