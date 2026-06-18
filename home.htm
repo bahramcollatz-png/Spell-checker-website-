@@ -145,9 +145,12 @@
     
     <!-- INPUT CARD -->
     <section class="rounded-2xl border border-var p-6 card-bg shadow-sm">
-      <h2 class="text-2xl font-bold flex items-center gap-2">
-        <span>⚡ TXT EATER Tool</span>
-      </h2>
+      <div class="flex items-center justify-between">
+        <h2 class="text-2xl font-bold flex items-center gap-2">
+          <span>⚡ TXT EATER Tool</span>
+        </h2>
+        <button id="clearInputBtn" class="px-4 py-1.5 border border-var rounded-full text-sm hover:bg-gray-100 dark:hover:bg-gray-800 transition" title="Clear input">🗑️ Clear</button>
+      </div>
 
       <textarea id="inputText" placeholder="Paste your text here…"
         class="mt-4 w-full h-44 p-4 border border-var rounded-xl resize-none focus:outline-none focus:ring-2 focus:ring-brand/40 transition"
@@ -156,7 +159,7 @@
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
         <div>
           <label class="text-sm font-medium muted-var">📎 Upload File</label>
-          <input id="fileInput" type="file" accept=".pdf,.doc,.docx,.txt"
+          <input id="fileInput" type="file" accept=".pdf,.doc,.docx,.txt,.htm,.html"
             class="mt-2 w-full p-2 border border-var rounded-lg text-sm file:mr-3" />
         </div>
 
@@ -187,6 +190,7 @@
         <div class="flex gap-2">
           <button id="copyBtn" class="px-4 py-1.5 border border-var rounded-full text-sm hover:bg-gray-100 dark:hover:bg-gray-800 transition">📋 Copy</button>
           <button id="openTabBtn" class="px-4 py-1.5 border border-var rounded-full text-sm hover:bg-gray-100 dark:hover:bg-gray-800 transition">↗️ Open in tab</button>
+          <button id="clearResultBtn" class="px-4 py-1.5 border border-var rounded-full text-sm hover:bg-gray-100 dark:hover:bg-gray-800 transition" title="Clear result">🗑️ Clear</button>
         </div>
       </div>
 
@@ -270,7 +274,7 @@
         if (!file) return;
         const ext = file.name.toLowerCase().split('.').pop();
 
-        if (ext === 'txt') {
+        if (ext === 'txt' || ext === 'htm' || ext === 'html') {
           const reader = new FileReader();
           reader.onload = () => { inputText.value = reader.result; };
           reader.readAsText(file);
@@ -292,7 +296,7 @@
             alert('File extraction failed: ' + err.message);
           }
         } else {
-          alert('Unsupported file type. Please use .txt, .pdf, or .docx');
+          alert('Unsupported file type. Please use .txt, .htm, .html, .pdf, or .docx');
         }
       });
 
@@ -336,13 +340,19 @@
           .replace(/'/g, '&#039;');
       }
 
-      // Large text handling: open in new tab
+      // Large text handling: open in new tab (safe DOM method)
       function openResultInTab(content) {
         const w = window.open('', '_blank');
-        w.document.write('<html><head><title>TXT EATER Result</title><style>body{font-family:system-ui,sans-serif;padding:2rem;background:#f8fafc;color:#0f172a;white-space:pre-wrap;word-break:break-word;}</style></head><body>');
-        w.document.write(content);
-        w.document.write('</body></html>');
+        if (!w) return;
+        w.document.open();
+        w.document.write('<!DOCTYPE html><html><head><title>TXT EATER Result</title></head><body></body></html>');
         w.document.close();
+        const style = w.document.createElement('style');
+        style.textContent = 'body{font-family:system-ui,sans-serif;padding:2rem;background:#f8fafc;color:#0f172a;}pre{white-space:pre-wrap;word-break:break-word;margin:0;}';
+        w.document.head.appendChild(style);
+        const pre = w.document.createElement('pre');
+        pre.textContent = content;
+        w.document.body.appendChild(pre);
       }
 
       const THRESHOLD = 8000; // characters to trigger new tab
@@ -488,6 +498,22 @@
 
         // store raw for copy/tab
         resultDiv.dataset.raw = rawOutput || text;
+      });
+
+      // Clear input button
+      const clearInputBtn = document.getElementById('clearInputBtn');
+      clearInputBtn?.addEventListener('click', () => {
+        inputText.value = '';
+        fileInput.value = '';
+        inputText.focus();
+      });
+
+      // Clear result button
+      const clearResultBtn = document.getElementById('clearResultBtn');
+      clearResultBtn?.addEventListener('click', () => {
+        resultDiv.innerHTML = '<span class="muted-var">Your output will appear here…</span>';
+        resultDiv.dataset.raw = '';
+        misspelledList.innerHTML = '';
       });
 
       // Copy button
