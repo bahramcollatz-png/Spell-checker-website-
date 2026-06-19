@@ -100,28 +100,11 @@
    <body data-theme="light" class="font-sans">
       <!-- NAVBAR --> 
       <nav class="border-b border-var bg-var/90 backdrop-blur-sm sticky top-0 z-20">
-         <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex items-center justify-between h-20">
-               <div class="flex items-center gap-3">
-                  <div class="w-9 h-9 rounded-full brand-bg flex items-center justify-center text-white font-bold">T</div>
-                  <span class="font-extrabold text-xl tracking-tight"> TXT<span class="text-brand" style="color:var(--brand)">EATER</span> </span> 
-               </div>
-               <!-- mobile menu button --> 
-               <button id="mobileMenuBtn" aria-label="Menu" class="md:hidden p-2 rounded-lg border border-var">
-                  <svg id="menuIcon" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
-                  </svg>
-               </button>
-               <div class="hidden md:flex items-center gap-8 text-sm font-medium">
-                  <a class="muted-var hover:text-var cursor-pointer">Features</a>
-                  <a class="muted-var hover:text-var cursor-pointer">Tools</a>
-                  <a class="muted-var hover:text-var cursor-pointer">Pricing</a>
-               </div>
-               <div class="hidden md:flex items-center gap-3">
-                  <button class="text-sm muted-var hover:text-var">Sign in</button>
-                  <button id="themeToggle" class="px-4 py-2 rounded-full border border-var text-sm font-medium">🌙 Dark</button>
-                  <button class="brand-bg text-white px-5 py-2 rounded-full text-sm font-semibold shadow-sm hover:opacity-90 transition">Get Started</button>
-               </div>
+         <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex items-center gap-4">
+            <a href="/" title="Back to home" class="inline-flex items-center justify-center w-11 h-11 rounded-full text-white text-2xl font-bold hover:opacity-90 transition shadow-md" style="background:var(--brand); text-decoration:none;">&#x2190;</a>
+            <div class="ml-auto flex items-center gap-2">
+               <img src="/static/images/bahram.jpg" alt="Bahram Rasooli" class="w-9 h-9 rounded-full object-cover border-2 border-white shadow-sm" />
+               <span class="text-sm font-medium muted-var hidden sm:inline">Bahram Rasooli</span>
             </div>
          </div>
          <!-- mobile dropdown --> 
@@ -138,11 +121,7 @@
       
       <!-- HERO --> 
       <header class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center mt-12 md:mt-16">
-         <h1 class="font-extrabold text-4xl sm:text-5xl lg:text-6xl leading-tight">
-            Text processing
-            <span class="block hero-underline text-brand" style="color:var(--brand)">made simple</span>
-            <span class="block mt-2">for everyone.</span>
-         </h1>
+         
          <p class="max-w-2xl mx-auto mt-5 text-lg muted-var">
             Upload documents or paste text. TXT EATER extracts, cleans, checks and transforms your text instantly.
          </p>
@@ -263,6 +242,7 @@
                const label = theme === 'dark' ? '☀️ Light' : '🌙 Dark';
                if (themeToggle) themeToggle.textContent = label;
                if (mobileThemeToggle) mobileThemeToggle.textContent = label;
+               localStorage.setItem('txtEaterTheme', theme);
             }
             
             themeToggle?.addEventListener('click', () => setTheme(currentTheme === 'dark' ? 'light' : 'dark'));
@@ -273,8 +253,9 @@
             const mobileMenu = document.getElementById('mobileMenu');
             mobileMenuBtn?.addEventListener('click', () => mobileMenu?.classList.toggle('hidden'));
             
-            // initial theme
-            setTheme('light');
+            // initial theme — restore from localStorage (shared with home.htm)
+            const savedTheme = localStorage.getItem('txtEaterTheme');
+            setTheme(savedTheme === 'dark' ? 'dark' : 'light');
             
             // ---------- FILE READING ----------
             const fileInput = document.getElementById('fileInput');

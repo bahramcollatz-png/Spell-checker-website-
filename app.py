@@ -10,7 +10,7 @@ from docx import Document
 
 load_dotenv()
 
-app = Flask(__name__, static_folder='.', template_folder='.')
+app = Flask(__name__, static_folder='static', static_url_path='/static', template_folder='.')
 
 # --- Groq client ---
 _groq = OpenAI(
@@ -38,12 +38,12 @@ def _ask_groq(system, prompt):
 
 @app.route('/')
 def index():
-    return send_from_directory(app.static_folder, 'home.htm')
+    return send_from_directory(app.template_folder, 'home.htm')
 
 
 @app.route('/tool')
 def tool():
-    return send_from_directory(app.static_folder, 'Tool.html')
+    return send_from_directory(app.template_folder, 'Tool.html')
 
 
 # ---------- Groq-powered spell check ----------

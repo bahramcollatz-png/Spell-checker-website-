@@ -448,11 +448,16 @@
         if (themeToggle) {
           themeToggle.textContent = theme === 'dark' ? '☀️ Light' : '🌙 Dark';
         }
+        localStorage.setItem('txtEaterTheme', theme);
       }
 
       themeToggle?.addEventListener('click', () => {
         setTheme(currentTheme === 'dark' ? 'light' : 'dark');
       });
+
+      // restore saved theme on load
+      const savedTheme = localStorage.getItem('txtEaterTheme');
+      if (savedTheme) setTheme(savedTheme);
 
       // ---------- LAUNCH TOOL IN NEW TAB ----------
       const launchBtn = document.getElementById('launchToolBtn');
