@@ -265,6 +265,34 @@
       white-space: pre-wrap;
       word-break: break-word;
     }
+
+    /* ========== TYPEWRITER ANIMATION ========== */
+    @keyframes typewriter {
+      from { width: 0; }
+      to   { width: 100%; }
+    }
+    @keyframes blink {
+      50% { border-color: transparent; }
+    }
+    .type-line {
+      display: block;
+      overflow: hidden;
+      white-space: nowrap;
+      border-right: 3px solid var(--brand);
+      width: 0;
+      line-height: 1.3;
+      padding-bottom: 0.15em;
+    }
+    .type-line-1 {
+      animation:
+        typewriter 3s steps(15) 0.4s forwards,
+        blink 0.75s step-end infinite;
+    }
+    .type-line-2 {
+      animation:
+        typewriter 2.5s steps(13) 3.6s forwards,
+        blink 0.75s step-end 3.6s infinite;
+    }
   </style>
 </head>
 <body class="antialiased" data-theme="light">
@@ -295,9 +323,9 @@
   <!-- ================= HERO + BIG LAUNCH BUTTON ================= -->
   <header class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center mt-16 md:mt-20 reveal-section">
     <h1 class="font-extrabold text-4xl sm:text-5xl lg:text-6xl leading-tight text-var">
-      Text processing
+      <span class="type-line type-line-1">Text processing</span>
       <span class="block" style="color:var(--brand); text-decoration: underline; text-decoration-thickness: 4px; text-underline-offset: 6px;">made simple</span>
-      <span class="block mt-2">for everyone.</span>
+      <span class="block mt-2"><span class="type-line type-line-2">for everyone.</span></span>
     </h1>
     <p class="max-w-2xl mx-auto mt-5 text-lg muted-var">
       Upload documents or paste text. TXT EATER extracts, cleans, checks and transforms your text instantly.
@@ -567,6 +595,15 @@
       // restore saved theme on load
       const savedTheme = localStorage.getItem('txtEaterTheme');
       if (savedTheme) setTheme(savedTheme);
+
+      // ---------- REMOVE TYPEWRITER CURSOR AFTER TYPING ----------
+      document.querySelectorAll('.type-line').forEach(el => {
+        el.addEventListener('animationend', (e) => {
+          if (e.animationName === 'typewriter') {
+            el.style.borderRightColor = 'transparent';
+          }
+        });
+      });
 
       // ---------- LAUNCH TOOL IN NEW TAB ----------
       const launchBtn = document.getElementById('launchToolBtn');
