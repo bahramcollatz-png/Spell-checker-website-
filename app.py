@@ -41,6 +41,11 @@ def index():
     return send_from_directory(app.static_folder, 'home.htm')
 
 
+@app.route('/tool')
+def tool():
+    return send_from_directory(app.static_folder, 'Tool.html')
+
+
 # ---------- Groq-powered spell check ----------
 
 @app.route('/api/spellcheck', methods=['POST'])

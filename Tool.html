@@ -1,0 +1,547 @@
+<!doctype html> 
+<html lang="en">
+   <head>
+      <meta charset="utf-8" />
+      <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=yes" />
+      <title>TXT EATER · text toolkit</title>
+      <script src="https://cdn.tailwindcss.com"></script> 
+      <style>
+         /* CSS variables for light/dark themes */
+         :root {
+            --bg: #ffffff;
+            --text: #0f172a;
+            --muted: #475569;
+            --brand: #2563eb;
+            --card: #f8fafc;
+            --border: #e2e8f0;
+            --accent: #0f172a;
+            --input-bg: #ffffff;
+            --input-text: #0f172a;
+            --select-bg: #ffffff;
+            --dropdown-text: #0f172a;
+         }
+         [data-theme="dark"] {
+            --bg: #0b1220;
+            --text: #e6eef8;
+            --muted: #9aa6b2;
+            --brand: #3b82f6;
+            --card: #071026;
+            --border: #1f2937;
+            --accent: #e6eef8;
+            --input-bg: #0f172a;
+            --input-text: #e6eef8;
+            --select-bg: #0f172a;
+            --dropdown-text: #e6eef8;
+         }
+         body {
+            background-color: var(--bg);
+            color: var(--text);
+            transition: background-color 0.25s ease, color 0.2s ease, border-color 0.2s ease;
+         }
+         .bg-var { background-color: var(--bg); }
+         .text-var { color: var(--text); }
+         .muted-var { color: var(--muted); }
+         .card-bg { background-color: var(--card); }
+         .border-var { border-color: var(--border); }
+         .brand-bg { background-color: var(--brand); }
+         .accent-var { color: var(--accent); }
+         /* force dropdowns and inputs to respect theme */
+         select, input[type="file"], textarea {
+            background-color: var(--input-bg);
+            color: var(--input-text);
+            border-color: var(--border);
+         }
+         select option {
+            background-color: var(--select-bg);
+            color: var(--dropdown-text);
+         }
+         /* file input button text */
+         input[type="file"]::file-selector-button {
+            background-color: var(--border);
+            color: var(--text);
+            border: none;
+            padding: 0.25rem 0.75rem;
+            border-radius: 0.5rem;
+         }
+         .hero-underline {
+            text-decoration-thickness: 4px;
+            text-underline-offset: 6px;
+            text-decoration-color: rgba(37,99,235,0.15);
+         }
+         /* ensure large result tab can be triggered */
+         .result-content {
+            white-space: pre-wrap;
+            word-break: break-word;
+         }
+      </style>
+   </head>
+   <body data-theme="light" class="font-sans">
+      <!-- NAVBAR --> 
+      <nav class="border-b border-var bg-var/90 backdrop-blur-sm sticky top-0 z-20">
+         <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-20">
+               <div class="flex items-center gap-3">
+                  <div class="w-9 h-9 rounded-full brand-bg flex items-center justify-center text-white font-bold">T</div>
+                  <span class="font-extrabold text-xl tracking-tight"> TXT<span class="text-brand" style="color:var(--brand)">EATER</span> </span> 
+               </div>
+               <!-- mobile menu button --> 
+               <button id="mobileMenuBtn" aria-label="Menu" class="md:hidden p-2 rounded-lg border border-var">
+                  <svg id="menuIcon" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+                  </svg>
+               </button>
+               <div class="hidden md:flex items-center gap-8 text-sm font-medium">
+                  <a class="muted-var hover:text-var cursor-pointer">Features</a>
+                  <a class="muted-var hover:text-var cursor-pointer">Tools</a>
+                  <a class="muted-var hover:text-var cursor-pointer">Pricing</a>
+               </div>
+               <div class="hidden md:flex items-center gap-3">
+                  <button class="text-sm muted-var hover:text-var">Sign in</button>
+                  <button id="themeToggle" class="px-4 py-2 rounded-full border border-var text-sm font-medium">🌙 Dark</button>
+                  <button class="brand-bg text-white px-5 py-2 rounded-full text-sm font-semibold shadow-sm hover:opacity-90 transition">Get Started</button>
+               </div>
+            </div>
+         </div>
+         <!-- mobile dropdown --> 
+         <div id="mobileMenu" class="md:hidden hidden border-t border-var px-4 py-4 space-y-3">
+            <a class="block muted-var">Features</a>
+            <a class="block muted-var">Tools</a>
+            <a class="block muted-var">Pricing</a> 
+            <div class="flex items-center gap-3 pt-2">
+               <button id="mobileThemeToggle" class="px-4 py-2 rounded-full border border-var text-sm">🌙 Dark</button>
+               <button class="ml-auto brand-bg text-white px-4 py-2 rounded-full text-sm">Get Started</button>
+            </div>
+         </div>
+      </nav>
+      
+      <!-- HERO --> 
+      <header class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center mt-12 md:mt-16">
+         <h1 class="font-extrabold text-4xl sm:text-5xl lg:text-6xl leading-tight">
+            Text processing
+            <span class="block hero-underline text-brand" style="color:var(--brand)">made simple</span>
+            <span class="block mt-2">for everyone.</span>
+         </h1>
+         <p class="max-w-2xl mx-auto mt-5 text-lg muted-var">
+            Upload documents or paste text. TXT EATER extracts, cleans, checks and transforms your text instantly.
+         </p>
+      </header>
+      
+      <!-- MAIN TOOL + RESULT (responsive grid) --> 
+      <main class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 mt-10 grid grid-cols-1 lg:grid-cols-2 gap-8">
+         <!-- INPUT CARD --> 
+         <section class="rounded-2xl border border-var p-6 card-bg shadow-sm">
+            <div class="flex items-center justify-between">
+               <h2 class="text-2xl font-bold flex items-center gap-2">
+                  <span>⚡ TXT EATER Tool</span>
+               </h2>
+               <button id="clearInputBtn" class="px-4 py-1.5 border border-var rounded-full text-sm hover:bg-gray-100 dark:hover:bg-gray-800 transition" title="Clear input">🗑️ Clear</button> 
+            </div>
+            <textarea id="inputText" placeholder="Paste your text here…" class="mt-4 w-full h-44 p-4 border border-var rounded-xl resize-none focus:outline-none focus:ring-2 focus:ring-brand/40 transition" style="background:var(--input-bg); color:var(--input-text);"></textarea>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
+               <div>
+                  <label class="text-sm font-medium muted-var">📎 Upload File</label>
+                  <input id="fileInput" type="file" accept=".pdf,.doc,.docx,.txt,.htm,.html" class="mt-2 w-full p-2 border border-var rounded-lg text-sm file:mr-3" />
+               </div>
+               <div>
+                  <label class="text-sm font-medium muted-var">⚙️ Choose Action</label> 
+                  <select id="action" class="mt-2 w-full p-2.5 border border-var rounded-lg text-sm focus:ring-2 focus:ring-brand/40" style="background:var(--select-bg); color:var(--dropdown-text);">
+                     <option>Spell Check</option>
+                     <option>Email Extraction</option>
+                     <option>Phone Number Extraction</option>
+                     <option>First Names</option>
+                     <option>Last Names</option>
+                     <option>Remove White Spaces</option>
+                  </select>
+               </div>
+            </div>
+            <button id="startBtn" class="mt-6 w-full brand-bg text-white py-3 rounded-full font-semibold text-lg shadow-md hover:opacity-90 transition-all">Start Processing</button> 
+            <p class="text-xs muted-var mt-3">✨ First names, last names, adjectives etc. now work reliably · large texts open in new tab.</p>
+         </section>
+         
+         <!-- RESULT CARD --> 
+         <section class="rounded-2xl border border-var p-6 card-bg shadow-sm flex flex-col">
+            <div class="flex items-center justify-between mb-3">
+               <h2 class="text-2xl font-bold">📋 Result</h2>
+               <div class="flex gap-2">
+                  <button id="copyBtn" class="px-4 py-1.5 border border-var rounded-full text-sm hover:bg-gray-100 dark:hover:bg-gray-800 transition">📋 Copy</button>
+                  <button id="openTabBtn" class="px-4 py-1.5 border border-var rounded-full text-sm hover:bg-gray-100 dark:hover:bg-gray-800 transition">↗️ Open in tab</button>
+                  <button id="clearResultBtn" class="px-4 py-1.5 border border-var rounded-full text-sm hover:bg-gray-100 dark:hover:bg-gray-800 transition" title="Clear result">🗑️ Clear</button>
+               </div>
+            </div>
+            <div id="result" class="flex-1 p-4 rounded-xl border border-var result-content overflow-auto" style="background:var(--input-bg); color:var(--input-text); min-height:180px; max-height:280px;">
+               <span class="muted-var">Your output will appear here…</span>
+            </div>
+            <div id="spellArea" class="mt-5">
+               <h3 class="text-lg font-semibold flex items-center gap-2">
+                  <span>🔍 Misspelled Words</span>
+               </h3>
+               <ul id="misspelled" class="list-disc list-inside mt-2 text-red-500 dark:text-red-400 space-y-1"></ul>
+            </div>
+         </section>
+      </main>
+      
+      <script>
+         (function() {
+            // ---------- THEME ----------
+            const body = document.body;
+            const themeToggle = document.getElementById('themeToggle');
+            const mobileThemeToggle = document.getElementById('mobileThemeToggle');
+            let currentTheme = 'light';
+            
+            const brandColors = {
+               light: {
+                  background: "#ffffff",
+                  text: "#0f172a",
+                  muted: "#475569",
+                  brand: "#2563eb",
+                  card: "#f8fafc",
+                  border: "#e2e8f0",
+                  accent: "#0f172a"
+               },
+               dark: {
+                  background: "#071026",
+                  text: "#e6eef8",
+                  muted: "#9aa6b2",
+                  brand: "#3b82f6",
+                  card: "#071026",
+                  border: "#1f2937",
+                  accent: "#e6eef8"
+               }
+            };
+            
+            function applyPalette(mode) {
+               const p = brandColors[mode];
+               if (!p) return;
+               const root = document.documentElement.style;
+               root.setProperty('--bg', p.background);
+               root.setProperty('--text', p.text);
+               root.setProperty('--muted', p.muted);
+               root.setProperty('--brand', p.brand);
+               root.setProperty('--card', p.card);
+               root.setProperty('--border', p.border);
+               root.setProperty('--accent', p.accent);
+               
+               // dark mode input overrides
+               if (mode === 'dark') {
+                  root.setProperty('--input-bg', '#0f172a');
+                  root.setProperty('--input-text', '#e6eef8');
+                  root.setProperty('--select-bg', '#0f172a');
+                  root.setProperty('--dropdown-text', '#e6eef8');
+               } else {
+                  root.setProperty('--input-bg', '#ffffff');
+                  root.setProperty('--input-text', '#0f172a');
+                  root.setProperty('--select-bg', '#ffffff');
+                  root.setProperty('--dropdown-text', '#0f172a');
+               }
+            }
+            
+            function setTheme(theme) {
+               currentTheme = theme;
+               body.setAttribute('data-theme', theme);
+               applyPalette(theme);
+               const label = theme === 'dark' ? '☀️ Light' : '🌙 Dark';
+               if (themeToggle) themeToggle.textContent = label;
+               if (mobileThemeToggle) mobileThemeToggle.textContent = label;
+            }
+            
+            themeToggle?.addEventListener('click', () => setTheme(currentTheme === 'dark' ? 'light' : 'dark'));
+            mobileThemeToggle?.addEventListener('click', () => setTheme(currentTheme === 'dark' ? 'light' : 'dark'));
+            
+            // mobile menu
+            const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+            const mobileMenu = document.getElementById('mobileMenu');
+            mobileMenuBtn?.addEventListener('click', () => mobileMenu?.classList.toggle('hidden'));
+            
+            // initial theme
+            setTheme('light');
+            
+            // ---------- FILE READING ----------
+            const fileInput = document.getElementById('fileInput');
+            const inputText = document.getElementById('inputText');
+            
+            fileInput?.addEventListener('change', async (e) => {
+               const file = e.target.files[0];
+               if (!file) return;
+               const ext = file.name.toLowerCase().split('.').pop();
+               
+               if (ext === 'txt' || ext === 'htm' || ext === 'html') {
+                  const reader = new FileReader();
+                  reader.onload = () => {
+                     inputText.value = reader.result;
+                  };
+                  reader.readAsText(file);
+               } else if (ext === 'pdf' || ext === 'docx') {
+                  inputText.value = 'Extracting text from file…';
+                  try {
+                     const formData = new FormData();
+                     formData.append('file', file);
+                     const res = await fetch('/api/extract-text', { method: 'POST', body: formData });
+                     const data = await res.json();
+                     if (data.text) {
+                        inputText.value = data.text;
+                     } else {
+                        inputText.value = '';
+                        alert(data.error || 'Failed to extract text from file.');
+                     }
+                  } catch (err) {
+                     inputText.value = '';
+                     alert('File extraction failed: ' + err.message);
+                  }
+               } else {
+                  alert('Unsupported file type. Please use .txt, .htm, .html, .pdf, or .docx');
+               }
+            });
+            
+            // ---------- EXTRACTION HELPERS ----------
+            async function backendNames(text, endpoint) {
+               try {
+                  const res = await fetch(endpoint, {
+                     method: 'POST',
+                     headers: { 'Content-Type': 'application/json' },
+                     body: JSON.stringify({ text })
+                  });
+                  if (!res.ok) throw new Error('status ' + res.status);
+                  return await res.json();
+               } catch (e) {
+                  console.warn('Name lookup failed', e);
+                  return null;
+               }
+            }
+            
+            async function backendSpellCheck(text) {
+               try {
+                  const res = await fetch('/api/spellcheck', {
+                     method: 'POST',
+                     headers: { 'Content-Type': 'application/json' },
+                     body: JSON.stringify({ text })
+                  });
+                  if (!res.ok) throw new Error('status ' + res.status);
+                  return await res.json();
+               } catch (e) {
+                  console.warn('Backend spellcheck failed', e);
+                  return null;
+               }
+            }
+            
+            function escapeHtml(text) {
+               return String(text)
+                  .replace(/&/g, '&amp;')
+                  .replace(/</g, '&lt;')
+                  .replace(/>/g, '&gt;')
+                  .replace(/"/g, '&quot;')
+                  .replace(/'/g, '&#039;');
+            }
+            
+            // Large text handling: copy to clipboard + popup
+            async function copyLargeResult(content) {
+               try {
+                  await navigator.clipboard.writeText(content);
+               } catch {
+                  const ta = document.createElement('textarea');
+                  ta.value = content;
+                  ta.style.position = 'fixed';
+                  ta.style.opacity = '0';
+                  document.body.appendChild(ta);
+                  ta.select();
+                  document.execCommand('copy');
+                  document.body.removeChild(ta);
+               }
+               showCopiedPopup();
+            }
+            
+            function showCopiedPopup() {
+               let popup = document.getElementById('copiedPopup');
+               if (!popup) {
+                  popup = document.createElement('div');
+                  popup.id = 'copiedPopup';
+                  popup.style.cssText = 'position:fixed;bottom:2rem;left:50%;transform:translateX(-50%);background:#16a34a;color:#fff;padding:0.75rem 1.5rem;border-radius:9999px;font-size:0.95rem;font-weight:600;z-index:9999;box-shadow:0 4px 12px rgba(0,0,0,0.15);transition:opacity 0.3s ease;';
+                  document.body.appendChild(popup);
+               }
+               popup.textContent = '✅ Copied to clipboard';
+               popup.style.opacity = '1';
+               popup.style.display = 'block';
+               setTimeout(() => {
+                  popup.style.opacity = '0';
+                  setTimeout(() => { popup.style.display = 'none'; }, 300);
+               }, 4000);
+            }
+            
+            const THRESHOLD = 8000; // characters to trigger new tab
+            
+            // ---------- MAIN ACTION ----------
+            const startBtn = document.getElementById('startBtn');
+            const actionSelect = document.getElementById('action');
+            const resultDiv = document.getElementById('result');
+            const misspelledList = document.getElementById('misspelled');
+            const copyBtn = document.getElementById('copyBtn');
+            const openTabBtn = document.getElementById('openTabBtn');
+            
+            startBtn?.addEventListener('click', async () => {
+               const text = inputText.value.trim();
+               if (!text) {
+                  resultDiv.innerHTML = '<span class="text-red-500">Please enter some text.</span>';
+                  misspelledList.innerHTML = '';
+                  return;
+               }
+               
+               const action = actionSelect.value;
+               misspelledList.innerHTML = '';
+               let outputHtml = '';
+               let rawOutput = '';
+               
+               // Helper to decide large content
+               const maybeLarge = (str) => {
+                  if (str.length > THRESHOLD) {
+                     copyLargeResult(str);
+                     return '<div class="text-amber-600 dark:text-amber-400 mt-2">📌 Result is large (' + str.length + ' chars) — copied to clipboard!</div>';
+                  }
+                  return '<div class="whitespace-pre-wrap">' + escapeHtml(str) + '</div>';
+               };
+               
+               switch (action) {
+                  case 'Remove White Spaces':
+                     rawOutput = text.replace(/\s+/g, ' ').trim();
+                     outputHtml = maybeLarge(rawOutput);
+                     break;
+                     
+                  case 'Email Extraction':
+                     {
+                        const emails = text.match(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-z]{2,}/g) || [];
+                        rawOutput = emails.length ? emails.join('\n') : 'No emails found';
+                        outputHtml = emails.length ? maybeLarge(emails.join('\n')) : '<span class="muted-var">No emails found</span>';
+                     }
+                     break;
+                     
+                  case 'Phone Number Extraction':
+                     {
+                        const phones = text.match(/(\+?\d[\d\s()-]{7,}\d)/g) || [];
+                        rawOutput = phones.length ? phones.join('\n') : 'No phone numbers found';
+                        outputHtml = phones.length ? maybeLarge(phones.join('\n')) : '<span class="muted-var">No phone numbers found</span>';
+                     }
+                     break;
+                     
+                  case 'First Names':
+                     {
+                        resultDiv.innerHTML = '<span class="muted-var">Looking up first names…</span>';
+                        const fnRes = await backendNames(text, '/api/first-names');
+                        if (fnRes && fnRes.first_names && fnRes.first_names.length) {
+                           rawOutput = fnRes.first_names.join(', ');
+                           outputHtml = '<span class="font-medium">First Names:</span> ' + escapeHtml(rawOutput);
+                        } else {
+                           rawOutput = 'No first names detected';
+                           outputHtml = '<span class="muted-var">No first names detected</span>';
+                        }
+                     }
+                     break;
+                     
+                  case 'Last Names':
+                     {
+                        resultDiv.innerHTML = '<span class="muted-var">Looking up last names…</span>';
+                        const lnRes = await backendNames(text, '/api/last-names');
+                        if (lnRes && lnRes.last_names && lnRes.last_names.length) {
+                           rawOutput = lnRes.last_names.join(', ');
+                           outputHtml = '<span class="font-medium">Last Names:</span> ' + escapeHtml(rawOutput);
+                        } else {
+                           rawOutput = 'No last names detected';
+                           outputHtml = '<span class="muted-var">No last names detected</span>';
+                        }
+                     }
+                     break;
+                     
+                  case 'Spell Check':
+                     {
+                        resultDiv.innerHTML = '<span class="muted-var">Running spell check…</span>';
+                        let check = await backendSpellCheck(text);
+                        
+                        if (!check) {
+                           outputHtml = '<strong>Refined text:</strong>\n' + escapeHtml(text);
+                           misspelledList.innerHTML = '<li>⚠️ Spell checker unavailable</li>';
+                        } else {
+                           // Show the refined text (already corrected server-side)
+                           rawOutput = check.refined;
+                           outputHtml = '<strong>📝 Refined text:</strong>\n' + escapeHtml(check.refined);
+                           
+                           // Build the misspelled list
+                           misspelledList.innerHTML = '';
+                           
+                           // Show corrected words
+                           if (check.corrections && check.corrections.length) {
+                              check.corrections.forEach(item => {
+                                 const li = document.createElement('li');
+                                 li.innerHTML = '<strong class="text-red-500">' + escapeHtml(item.original) + '</strong> → <span class="text-green-600">' + escapeHtml(item.correction) + '</span>';
+                                 misspelledList.appendChild(li);
+                              });
+                           }
+                           
+                           // Show words that could NOT be auto-corrected
+                           if (check.no_fix && check.no_fix.length) {
+                              const sep = document.createElement('li');
+                              sep.innerHTML = '<em class="muted-var">No auto-correction available:</em>';
+                              misspelledList.appendChild(sep);
+                              
+                              check.no_fix.forEach(item => {
+                                 const li = document.createElement('li');
+                                 const sug = item.suggestions && item.suggestions.length ? item.suggestions.slice(0,3).join(', ') : 'no suggestions';
+                                 li.innerHTML = '<strong class="text-red-500">' + escapeHtml(item.word) + '</strong> → ' + escapeHtml(sug);
+                                 misspelledList.appendChild(li);
+                              });
+                           }
+                           
+                           // All good message
+                           if ((!check.corrections || !check.corrections.length) && (!check.no_fix || !check.no_fix.length)) {
+                              misspelledList.innerHTML = '<li class="text-green-600 dark:text-green-400">✅ No misspelled words found</li>';
+                           }
+                        }
+                     }
+                     break;
+                     
+                  default:
+                     rawOutput = text;
+                     outputHtml = maybeLarge(text);
+               }
+               
+               if (action !== 'Spell Check') {
+                  resultDiv.innerHTML = outputHtml;
+               } else {
+                  resultDiv.innerHTML = outputHtml;
+               }
+               
+               // store raw for copy/tab
+               resultDiv.dataset.raw = rawOutput || text;
+            });
+            
+            // Clear input button
+            const clearInputBtn = document.getElementById('clearInputBtn');
+            clearInputBtn?.addEventListener('click', () => {
+               inputText.value = '';
+               fileInput.value = '';
+               inputText.focus();
+            });
+            
+            // Clear result button
+            const clearResultBtn = document.getElementById('clearResultBtn');
+            clearResultBtn?.addEventListener('click', () => {
+               resultDiv.innerHTML = '<span class="muted-var">Your output will appear here…</span>';
+               resultDiv.dataset.raw = '';
+               misspelledList.innerHTML = '';
+            });
+            
+            // Copy button
+            copyBtn?.addEventListener('click', () => {
+               const raw = resultDiv.dataset.raw || resultDiv.innerText || '';
+               navigator.clipboard.writeText(raw).then(() => {
+                  copyBtn.textContent = '✅ Copied!';
+                  setTimeout(() => { copyBtn.textContent = '📋 Copy'; }, 2000);
+               }).catch(() => alert('Copy failed'));
+            });
+            
+            // Open in tab button
+            openTabBtn?.addEventListener('click', () => {
+               const raw = resultDiv.dataset.raw || resultDiv.innerText || '';
+               copyLargeResult(raw);
+            });
+            
+         })(); // ← This closing was missing
+      </script> 
+   </body>
+</html>
