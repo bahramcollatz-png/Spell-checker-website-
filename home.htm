@@ -85,6 +85,64 @@
       }
     }
 
+    /* ========== TESTIMONIAL CARD BORDER ANIMATION ========== */
+    .testimonial-card-wrapper {
+      position: relative;
+      border-radius: 1rem;
+      background: var(--card-bg);
+      border: 1px solid var(--border-var);
+      overflow: hidden;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .testimonial-card-wrapper::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      border-radius: 1rem;
+      padding: 1.5px;
+      background: conic-gradient(
+        from 90deg at 50% 50%,
+        #3b82f6,
+        transparent 25%,
+        transparent 75%,
+        #3b82f6 100%
+      );
+      -webkit-mask: 
+        linear-gradient(#fff 0 0) content-box, 
+        linear-gradient(#fff 0 0);
+      -webkit-mask-composite: xor;
+      mask-composite: exclude;
+      animation: rotateBorder 8s linear infinite;
+      z-index: 2;
+      pointer-events: none;
+    }
+
+    @keyframes rotateBorder {
+      0% {
+        transform: rotate(0deg);
+      }
+      100% {
+        transform: rotate(360deg);
+      }
+    }
+
+    .testimonial-card-content {
+      position: relative;
+      z-index: 1;
+      background: transparent;
+      border-radius: 0.9rem;
+      height: 100%;
+    }
+
+    .testimonial-card-wrapper:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+    }
+
     /* ========== CARD INTERACTIONS ========== */
     .card-bg {
       transition: transform 0.3s ease, box-shadow 0.3s ease;
@@ -228,7 +286,7 @@
         </div>
         <div class="hidden md:flex items-center gap-3">
           <button id="themeToggle" class="px-4 py-2 rounded-full border border-var text-sm font-medium text-var">🌙 Dark</button>
-          <button class="brand-bg text-white px-5 py-2 rounded-full text-sm font-semibold shadow-sm hover:opacity-90 transition">Get Started</button>
+          <a href="/tool" class="brand-bg text-white px-5 py-2 rounded-full text-sm font-semibold shadow-sm hover:opacity-90 transition inline-block" style="text-decoration:none;">Get Started</a>
         </div>
       </div>
     </div>
@@ -261,8 +319,11 @@
       <p class="muted-var mt-3">Simple tools designed for developers, students, and companies.</p>
     </div>
 
-    <div class="relative overflow-hidden">
-      <div class="flex gap-12 company-slider whitespace-nowrap">
+    <div class="relative overflow-hidden max-w-3xl mx-auto">
+      <!-- fade masks to hide loop seam -->
+      <div class="absolute left-0 top-0 bottom-0 w-16 bg-gradient-to-r z-10 pointer-events-none" style="background: linear-gradient(to right, var(--bg), transparent);"></div>
+      <div class="absolute right-0 top-0 bottom-0 w-16 bg-gradient-to-l z-10 pointer-events-none" style="background: linear-gradient(to left, var(--bg), transparent);"></div>
+      <div class="flex gap-8 company-slider whitespace-nowrap py-2">
         <div class="text-2xl font-bold opacity-70 text-var">NovaTech</div>
         <div class="text-2xl font-bold opacity-70 text-var">CloudSphere</div>
         <div class="text-2xl font-bold opacity-70 text-var">PixelWorks</div>
@@ -288,37 +349,85 @@
 
     <div class="grid md:grid-cols-3 gap-6">
       <!-- testimonial 1 -->
-      <div class="card-bg border border-var rounded-2xl p-6 shadow-sm">
-        <p class="muted-var leading-relaxed">"TXT EATER helped our team clean thousands of documents in minutes. The AI tools are extremely useful."</p>
-        <div class="mt-6 flex items-center gap-3">
-          <div class="w-12 h-12 rounded-full brand-bg text-white flex items-center justify-center font-bold">SM</div>
-          <div>
-            <h4 class="font-bold text-var">Sarah Miller</h4>
-            <p class="text-sm muted-var">Product Manager at NovaTech</p>
+      <div class="testimonial-card-wrapper">
+        <div class="testimonial-card-content p-6">
+          <p class="muted-var leading-relaxed">"TXT EATER helped our team clean thousands of documents in minutes. The AI tools are extremely useful."</p>
+          <div class="mt-6 flex items-center gap-3">
+            <div class="w-12 h-12 rounded-full brand-bg text-white flex items-center justify-center font-bold">SM</div>
+            <div>
+              <h4 class="font-bold text-var">Sarah Miller</h4>
+              <p class="text-sm muted-var">Product Manager at NovaTech</p>
+            </div>
           </div>
         </div>
       </div>
 
       <!-- testimonial 2 -->
-      <div class="card-bg border border-var rounded-2xl p-6 shadow-sm">
-        <p class="muted-var leading-relaxed">"The spell checking and extraction features save hours every week. Simple and powerful."</p>
-        <div class="mt-6 flex items-center gap-3">
-          <div class="w-12 h-12 rounded-full brand-bg text-white flex items-center justify-center font-bold">DC</div>
-          <div>
-            <h4 class="font-bold text-var">Daniel Carter</h4>
-            <p class="text-sm muted-var">Founder at CloudSphere</p>
+      <div class="testimonial-card-wrapper">
+        <div class="testimonial-card-content p-6">
+          <p class="muted-var leading-relaxed">"The spell checking and extraction features save hours every week. Simple and powerful."</p>
+          <div class="mt-6 flex items-center gap-3">
+            <div class="w-12 h-12 rounded-full brand-bg text-white flex items-center justify-center font-bold">DC</div>
+            <div>
+              <h4 class="font-bold text-var">Daniel Carter</h4>
+              <p class="text-sm muted-var">Founder at CloudSphere</p>
+            </div>
           </div>
         </div>
       </div>
 
       <!-- testimonial 3 -->
-      <div class="card-bg border border-var rounded-2xl p-6 shadow-sm">
-        <p class="muted-var leading-relaxed">"A lightweight text processing solution with a beautiful interface. Exactly what developers need."</p>
-        <div class="mt-6 flex items-center gap-3">
-          <div class="w-12 h-12 rounded-full brand-bg text-white flex items-center justify-center font-bold">AL</div>
-          <div>
-            <h4 class="font-bold text-var">Alex Lee</h4>
-            <p class="text-sm muted-var">Software Engineer</p>
+      <div class="testimonial-card-wrapper">
+        <div class="testimonial-card-content p-6">
+          <p class="muted-var leading-relaxed">"A lightweight text processing solution with a beautiful interface. Exactly what developers need."</p>
+          <div class="mt-6 flex items-center gap-3">
+            <div class="w-12 h-12 rounded-full brand-bg text-white flex items-center justify-center font-bold">AL</div>
+            <div>
+              <h4 class="font-bold text-var">Alex Lee</h4>
+              <p class="text-sm muted-var">Software Engineer</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- testimonial 4 -->
+      <div class="testimonial-card-wrapper">
+        <div class="testimonial-card-content p-6">
+          <p class="muted-var leading-relaxed">"I use TXT EATER daily for my research work. The name extraction feature is incredibly accurate."</p>
+          <div class="mt-6 flex items-center gap-3">
+            <div class="w-12 h-12 rounded-full brand-bg text-white flex items-center justify-center font-bold">MR</div>
+            <div>
+              <h4 class="font-bold text-var">Maria Rodriguez</h4>
+              <p class="text-sm muted-var">Research Scientist</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- testimonial 5 -->
+      <div class="testimonial-card-wrapper">
+        <div class="testimonial-card-content p-6">
+          <p class="muted-var leading-relaxed">"Best text toolkit I've ever used. The UI is clean, fast, and the results are always reliable."</p>
+          <div class="mt-6 flex items-center gap-3">
+            <div class="w-12 h-12 rounded-full brand-bg text-white flex items-center justify-center font-bold">JK</div>
+            <div>
+              <h4 class="font-bold text-var">James Kim</h4>
+              <p class="text-sm muted-var">Data Analyst at PixelWorks</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- testimonial 6 -->
+      <div class="testimonial-card-wrapper">
+        <div class="testimonial-card-content p-6">
+          <p class="muted-var leading-relaxed">"As a student, this free tool is a lifesaver for proofreading and organizing my research papers."</p>
+          <div class="mt-6 flex items-center gap-3">
+            <div class="w-12 h-12 rounded-full brand-bg text-white flex items-center justify-center font-bold">EP</div>
+            <div>
+              <h4 class="font-bold text-var">Emma Patterson</h4>
+              <p class="text-sm muted-var">Graduate Student</p>
+            </div>
           </div>
         </div>
       </div>
@@ -346,7 +455,7 @@
             <li>✓ Phone number extraction</li>
             <li>✓ Basic text tools</li>
           </ul>
-          <button class="mt-8 w-full py-3 rounded-full bg-blue-600 hover:bg-blue-700">Get Started</button>
+          <a href="/tool" class="mt-8 w-full py-3 rounded-full bg-blue-600 hover:bg-blue-700 text-white text-center block" style="text-decoration:none;">Get Started</a>
         </div>
 
         <!-- PRO PLAN -->
@@ -361,7 +470,7 @@
             <li>✓ Custom AI features</li>
             <li>✓ Developer support</li>
           </ul>
-          <button id="contactDeveloperBtn" class="mt-8 w-full py-3 rounded-full bg-white text-blue-600 font-bold">Contact Developer</button>
+          <a id="contactDeveloperBtn" href="/contact" class="mt-8 w-full py-3 rounded-full bg-white text-blue-600 font-bold text-center block" style="text-decoration:none;">Contact Developer</a>
           <div class="mt-6 text-sm space-y-1">
             <p>Developer: Bahram Rasooli</p>
             <p>Email: bahramcollatz@gmail.com</p>
@@ -486,13 +595,8 @@
         });
       }
 
-      // ---------- CONTACT DEVELOPER BUTTON (Pro plan) ----------
-      const contactBtn = document.getElementById('contactDeveloperBtn');
-      if (contactBtn) {
-        contactBtn.addEventListener('click', () => {
-          window.location.href = 'mailto:bahramcollatz@gmail.com';
-        });
-      }
+      // ---------- CONTACT DEVELOPER BUTTON ----------
+      // Now handled via href="/contact" — no JS needed
 
       // ---------- SCROLL REVEAL (Intersection Observer) ----------
       const revealSections = document.querySelectorAll('section.reveal-section');

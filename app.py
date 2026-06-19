@@ -46,6 +46,11 @@ def tool():
     return send_from_directory(app.template_folder, 'Tool.html')
 
 
+@app.route('/contact')
+def contact():
+    return send_from_directory(app.template_folder, 'contact.html')
+
+
 # ---------- Groq-powered spell check ----------
 
 @app.route('/api/spellcheck', methods=['POST'])

@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TXT EATER · Contact</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    :root {
+      --bg: #f9fafb;
+      --brand: #2563eb;
+      --border-var: #e5e7eb;
+      --muted: #4b5563;
+      --card-bg: #ffffff;
+      --text-main: #111827;
+    }
+    [data-theme="dark"] {
+      --bg: #0b1220;
+      --text-main: #e6eef8;
+      --muted: #9aa6b2;
+      --brand: #3b82f6;
+      --card-bg: #071026;
+      --border-var: #1f2937;
+    }
+    body {
+      background-color: var(--bg);
+      color: var(--text-main);
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      margin: 0;
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+      transition: background-color 0.3s ease, color 0.3s ease;
+    }
+    .border-var { border-color: var(--border-var); }
+    .muted-var  { color: var(--muted); }
+    .card-bg    { background-color: var(--card-bg); }
+    .brand-bg   { background-color: var(--brand); }
+    .text-var   { color: var(--text-main); }
+    .bg-var     { background-color: var(--bg); }
+
+    .contact-card {
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .contact-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 16px 40px rgba(0,0,0,0.1);
+    }
+  </style>
+</head>
+<body class="antialiased" data-theme="light">
+
+  <!-- NAVBAR -->
+  <nav class="border-b border-var bg-var/90 backdrop-blur-sm sticky top-0 z-20">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex items-center gap-4">
+      <a href="/" title="Back to home"
+         class="inline-flex items-center justify-center w-11 h-11 rounded-full text-white text-2xl font-bold hover:opacity-90 transition shadow-md"
+         style="background:var(--brand); text-decoration:none;">&#x2190;</a>
+      <div class="flex items-center gap-3">
+        <div class="w-9 h-9 rounded-full brand-bg flex items-center justify-center text-white font-bold">T</div>
+        <span class="font-extrabold text-xl tracking-tight text-var">
+          TXT<span style="color:var(--brand)">EATER</span>
+        </span>
+      </div>
+      <div class="ml-auto">
+        <button id="themeToggle"
+          class="px-4 py-2 rounded-full border border-var text-sm font-medium text-var">🌙 Dark</button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <header class="max-w-2xl mx-auto px-4 text-center mt-16 md:mt-20">
+    <h1 class="font-extrabold text-4xl sm:text-5xl leading-tight text-var">
+      Get in <span style="color:var(--brand)">touch</span>
+    </h1>
+    <p class="max-w-xl mx-auto mt-5 text-lg muted-var">
+      Have a question, feature request, or just want to say hello? Reach out through any of the channels below.
+    </p>
+  </header>
+
+  <!-- CONTACT CARDS -->
+  <main class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 mt-14 mb-24 grid grid-cols-1 sm:grid-cols-2 gap-6">
+
+    <!-- Email -->
+    <a href="mailto:bahramcollatz@gmail.com"
+       class="contact-card card-bg border border-var rounded-2xl p-6 block"
+       style="text-decoration:none;">
+      <div class="flex items-center gap-3 mb-4">
+        <div class="w-11 h-11 rounded-full brand-bg flex items-center justify-center text-white text-xl">✉️</div>
+        <h2 class="text-lg font-bold text-var">Email</h2>
+      </div>
+      <p class="muted-var text-sm">bahramcollatz@gmail.com</p>
+      <p class="mt-3 text-sm font-semibold" style="color:var(--brand)">Send email →</p>
+    </a>
+
+    <!-- WhatsApp -->
+    <a href="https://wa.me/93711036740" target="_blank" rel="noopener"
+       class="contact-card card-bg border border-var rounded-2xl p-6 block"
+       style="text-decoration:none;">
+      <div class="flex items-center gap-3 mb-4">
+        <div class="w-11 h-11 rounded-full flex items-center justify-center text-white text-xl"
+             style="background:#25d366;">💬</div>
+        <h2 class="text-lg font-bold text-var">WhatsApp</h2>
+      </div>
+      <p class="muted-var text-sm">+93 711 036 740</p>
+      <p class="mt-3 text-sm font-semibold" style="color:var(--brand)">Open chat →</p>
+    </a>
+
+    <!-- GitHub -->
+    <a href="https://github.com/bahramcollatz-png" target="_blank" rel="noopener"
+       class="contact-card card-bg border border-var rounded-2xl p-6 block"
+       style="text-decoration:none;">
+      <div class="flex items-center gap-3 mb-4">
+        <div class="w-11 h-11 rounded-full flex items-center justify-center text-white text-xl"
+             style="background:#24292f;">🐙</div>
+        <h2 class="text-lg font-bold text-var">GitHub</h2>
+      </div>
+      <p class="muted-var text-sm">@bahramcollatz-png</p>
+      <p class="mt-3 text-sm font-semibold" style="color:var(--brand)">View profile →</p>
+    </a>
+
+    <!-- Launch Tool CTA -->
+    <a href="/tool"
+       class="contact-card brand-bg rounded-2xl p-6 flex flex-col justify-between block"
+       style="text-decoration:none;">
+      <div>
+        <h2 class="text-lg font-bold text-white">Try TXT EATER</h2>
+        <p class="text-blue-100 text-sm mt-2">Jump straight into the text toolkit — spell check, extract emails, names &amp; more.</p>
+      </div>
+      <p class="mt-6 text-sm font-bold text-white">Launch tool →</p>
+    </a>
+
+  </main>
+
+  <!-- FOOTER -->
+  <hr class="border-gray-700 max-w-3xl mx-auto" />
+  <footer class="bg-[#0b1220] text-white py-6 mt-16">
+    <div class="max-w-6xl mx-auto px-4 flex flex-col md:flex-row items-center justify-between gap-4 text-sm">
+      <div>
+        <span class="font-bold">TXT EATER</span>
+        <span class="text-gray-400 ml-2">· AI text toolkit</span>
+      </div>
+      <div class="flex gap-4 text-gray-400">
+        <a href="/" class="hover:text-white transition">Home</a>
+        <a href="/tool" class="hover:text-white transition">Tool</a>
+        <a href="/#pricing" class="hover:text-white transition">Pricing</a>
+      </div>
+      <div class="text-gray-500">© 2026 Bahram Rasooli</div>
+    </div>
+  </footer>
+
+  <script>
+    (function() {
+      const body = document.body;
+      const themeToggle = document.getElementById('themeToggle');
+      let currentTheme = 'light';
+
+      function setTheme(theme) {
+        currentTheme = theme;
+        body.setAttribute('data-theme', theme);
+        if (themeToggle) {
+          themeToggle.textContent = theme === 'dark' ? '☀️ Light' : '🌙 Dark';
+        }
+        localStorage.setItem('txtEaterTheme', theme);
+      }
+
+      themeToggle?.addEventListener('click', () => {
+        setTheme(currentTheme === 'dark' ? 'light' : 'dark');
+      });
+
+      const savedTheme = localStorage.getItem('txtEaterTheme');
+      if (savedTheme) setTheme(savedTheme);
+    })();
+  </script>
+</body>
+</html>
