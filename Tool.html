@@ -73,6 +73,28 @@
             white-space: pre-wrap;
             word-break: break-word;
          }
+         /* clipboard toast popup */
+         #clipboardToast {
+            position: fixed;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%) translateY(20px);
+            background: #16a34a;
+            color: #fff;
+            padding: 0.75rem 1.75rem;
+            border-radius: 9999px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.18);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease, transform 0.3s ease;
+            z-index: 100;
+         }
+         #clipboardToast.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+         }
       </style>
    </head>
    <body data-theme="light" class="font-sans">
@@ -168,9 +190,8 @@
                   <button id="clearResultBtn" class="px-4 py-1.5 border border-var rounded-full text-sm hover:bg-gray-100 dark:hover:bg-gray-800 transition" title="Clear result">🗑️ Clear</button>
                </div>
             </div>
-            <div id="result" class="flex-1 p-4 rounded-xl border border-var result-content overflow-auto" style="background:var(--input-bg); color:var(--input-text); min-height:180px; max-height:280px;">
-               <span class="muted-var">Your output will appear here…</span>
-            </div>
+            <!-- Fixed height textarea with scroll for results -->
+            <textarea id="result" readonly class="w-full p-4 rounded-xl border border-var resize-none focus:outline-none result-content" placeholder="Your output will appear here…" style="background:var(--input-bg); color:var(--input-text); height: 280px; max-height: 280px; overflow-y: auto;"></textarea>
             <div id="spellArea" class="mt-5">
                <h3 class="text-lg font-semibold flex items-center gap-2">
                   <span>🔍 Misspelled Words</span>
@@ -323,50 +344,20 @@
                }
             }
             
-            function escapeHtml(text) {
-               return String(text)
-                  .replace(/&/g, '&amp;')
-                  .replace(/</g, '&lt;')
-                  .replace(/>/g, '&gt;')
-                  .replace(/"/g, '&quot;')
-                  .replace(/'/g, '&#039;');
+            // Open result in new tab (safe DOM method)
+            function openResultInTab(content) {
+               const w = window.open('', '_blank');
+               if (!w) return;
+               w.document.open();
+               w.document.write('<!DOCTYPE html><html><head><title>TXT EATER Result</title></head><body></body></html>');
+               w.document.close();
+               const style = w.document.createElement('style');
+               style.textContent = 'body{font-family:system-ui,sans-serif;padding:2rem;background:#f8fafc;color:#0f172a;}pre{white-space:pre-wrap;word-break:break-word;margin:0;}';
+               w.document.head.appendChild(style);
+               const pre = w.document.createElement('pre');
+               pre.textContent = content;
+               w.document.body.appendChild(pre);
             }
-            
-            // Large text handling: copy to clipboard + popup
-            async function copyLargeResult(content) {
-               try {
-                  await navigator.clipboard.writeText(content);
-               } catch {
-                  const ta = document.createElement('textarea');
-                  ta.value = content;
-                  ta.style.position = 'fixed';
-                  ta.style.opacity = '0';
-                  document.body.appendChild(ta);
-                  ta.select();
-                  document.execCommand('copy');
-                  document.body.removeChild(ta);
-               }
-               showCopiedPopup();
-            }
-            
-            function showCopiedPopup() {
-               let popup = document.getElementById('copiedPopup');
-               if (!popup) {
-                  popup = document.createElement('div');
-                  popup.id = 'copiedPopup';
-                  popup.style.cssText = 'position:fixed;bottom:2rem;left:50%;transform:translateX(-50%);background:#16a34a;color:#fff;padding:0.75rem 1.5rem;border-radius:9999px;font-size:0.95rem;font-weight:600;z-index:9999;box-shadow:0 4px 12px rgba(0,0,0,0.15);transition:opacity 0.3s ease;';
-                  document.body.appendChild(popup);
-               }
-               popup.textContent = '✅ Copied to clipboard';
-               popup.style.opacity = '1';
-               popup.style.display = 'block';
-               setTimeout(() => {
-                  popup.style.opacity = '0';
-                  setTimeout(() => { popup.style.display = 'none'; }, 300);
-               }, 4000);
-            }
-            
-            const THRESHOLD = 8000; // characters to trigger new tab
             
             // ---------- MAIN ACTION ----------
             const startBtn = document.getElementById('startBtn');
@@ -379,87 +370,69 @@
             startBtn?.addEventListener('click', async () => {
                const text = inputText.value.trim();
                if (!text) {
-                  resultDiv.innerHTML = '<span class="text-red-500">Please enter some text.</span>';
+                  resultDiv.value = '⚠️ Please enter some text.';
+                  resultDiv.placeholder = 'Your output will appear here…';
                   misspelledList.innerHTML = '';
                   return;
                }
                
                const action = actionSelect.value;
                misspelledList.innerHTML = '';
-               let outputHtml = '';
-               let rawOutput = '';
-               
-               // Helper to decide large content
-               const maybeLarge = (str) => {
-                  if (str.length > THRESHOLD) {
-                     copyLargeResult(str);
-                     return '<div class="text-amber-600 dark:text-amber-400 mt-2">📌 Result is large (' + str.length + ' chars) — copied to clipboard!</div>';
-                  }
-                  return '<div class="whitespace-pre-wrap">' + escapeHtml(str) + '</div>';
-               };
+               let outputText = '';
                
                switch (action) {
                   case 'Remove White Spaces':
-                     rawOutput = text.replace(/\s+/g, ' ').trim();
-                     outputHtml = maybeLarge(rawOutput);
+                     outputText = text.replace(/\s+/g, ' ').trim();
                      break;
                      
                   case 'Email Extraction':
                      {
                         const emails = text.match(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-z]{2,}/g) || [];
-                        rawOutput = emails.length ? emails.join('\n') : 'No emails found';
-                        outputHtml = emails.length ? maybeLarge(emails.join('\n')) : '<span class="muted-var">No emails found</span>';
+                        outputText = emails.length ? emails.join('\n') : 'No emails found';
                      }
                      break;
                      
                   case 'Phone Number Extraction':
                      {
                         const phones = text.match(/(\+?\d[\d\s()-]{7,}\d)/g) || [];
-                        rawOutput = phones.length ? phones.join('\n') : 'No phone numbers found';
-                        outputHtml = phones.length ? maybeLarge(phones.join('\n')) : '<span class="muted-var">No phone numbers found</span>';
+                        outputText = phones.length ? phones.join('\n') : 'No phone numbers found';
                      }
                      break;
                      
                   case 'First Names':
                      {
-                        resultDiv.innerHTML = '<span class="muted-var">Looking up first names…</span>';
+                        resultDiv.value = 'Looking up first names…';
                         const fnRes = await backendNames(text, '/api/first-names');
                         if (fnRes && fnRes.first_names && fnRes.first_names.length) {
-                           rawOutput = fnRes.first_names.join(', ');
-                           outputHtml = '<span class="font-medium">First Names:</span> ' + escapeHtml(rawOutput);
+                           outputText = 'First Names:\n' + fnRes.first_names.join(', ');
                         } else {
-                           rawOutput = 'No first names detected';
-                           outputHtml = '<span class="muted-var">No first names detected</span>';
+                           outputText = 'No first names detected';
                         }
                      }
                      break;
                      
                   case 'Last Names':
                      {
-                        resultDiv.innerHTML = '<span class="muted-var">Looking up last names…</span>';
+                        resultDiv.value = 'Looking up last names…';
                         const lnRes = await backendNames(text, '/api/last-names');
                         if (lnRes && lnRes.last_names && lnRes.last_names.length) {
-                           rawOutput = lnRes.last_names.join(', ');
-                           outputHtml = '<span class="font-medium">Last Names:</span> ' + escapeHtml(rawOutput);
+                           outputText = 'Last Names:\n' + lnRes.last_names.join(', ');
                         } else {
-                           rawOutput = 'No last names detected';
-                           outputHtml = '<span class="muted-var">No last names detected</span>';
+                           outputText = 'No last names detected';
                         }
                      }
                      break;
                      
                   case 'Spell Check':
                      {
-                        resultDiv.innerHTML = '<span class="muted-var">Running spell check…</span>';
+                        resultDiv.value = 'Running spell check…';
                         let check = await backendSpellCheck(text);
                         
                         if (!check) {
-                           outputHtml = '<strong>Refined text:</strong>\n' + escapeHtml(text);
+                           outputText = 'Refined text:\n' + text;
                            misspelledList.innerHTML = '<li>⚠️ Spell checker unavailable</li>';
                         } else {
-                           // Show the refined text (already corrected server-side)
-                           rawOutput = check.refined;
-                           outputHtml = '<strong>📝 Refined text:</strong>\n' + escapeHtml(check.refined);
+                           outputText = '📝 Refined text:\n' + check.refined;
                            
                            // Build the misspelled list
                            misspelledList.innerHTML = '';
@@ -496,19 +469,41 @@
                      break;
                      
                   default:
-                     rawOutput = text;
-                     outputHtml = maybeLarge(text);
+                     outputText = text;
                }
                
-               if (action !== 'Spell Check') {
-                  resultDiv.innerHTML = outputHtml;
-               } else {
-                  resultDiv.innerHTML = outputHtml;
-               }
+               // Set the result textarea value
+               resultDiv.value = outputText;
                
-               // store raw for copy/tab
-               resultDiv.dataset.raw = rawOutput || text;
+               // Store raw output for copy/tab functionality
+               resultDiv.dataset.raw = outputText;
+               
+               // Auto-copy result to clipboard and show popup
+               if (outputText) {
+                  navigator.clipboard.writeText(outputText).then(() => {
+                     showClipboardToast();
+                  }).catch(() => {});
+               }
             });
+            
+            function showClipboardToast() {
+               const toast = document.getElementById('clipboardToast');
+               if (!toast) return;
+               toast.classList.add('show');
+               clearTimeout(toast._timer);
+               toast._timer = setTimeout(() => {
+                  toast.classList.remove('show');
+               }, 2000);
+            }
+            
+            function escapeHtml(text) {
+               return String(text)
+                  .replace(/&/g, '&amp;')
+                  .replace(/</g, '&lt;')
+                  .replace(/>/g, '&gt;')
+                  .replace(/"/g, '&quot;')
+                  .replace(/'/g, '&#039;');
+            }
             
             // Clear input button
             const clearInputBtn = document.getElementById('clearInputBtn');
@@ -521,27 +516,30 @@
             // Clear result button
             const clearResultBtn = document.getElementById('clearResultBtn');
             clearResultBtn?.addEventListener('click', () => {
-               resultDiv.innerHTML = '<span class="muted-var">Your output will appear here…</span>';
+               resultDiv.value = '';
+               resultDiv.placeholder = 'Your output will appear here…';
                resultDiv.dataset.raw = '';
                misspelledList.innerHTML = '';
             });
             
             // Copy button
             copyBtn?.addEventListener('click', () => {
-               const raw = resultDiv.dataset.raw || resultDiv.innerText || '';
+               const raw = resultDiv.dataset.raw || resultDiv.value || '';
                navigator.clipboard.writeText(raw).then(() => {
                   copyBtn.textContent = '✅ Copied!';
                   setTimeout(() => { copyBtn.textContent = '📋 Copy'; }, 2000);
                }).catch(() => alert('Copy failed'));
             });
             
-            // Open in tab button
+            // Open in tab button - opens result text in new tab
             openTabBtn?.addEventListener('click', () => {
-               const raw = resultDiv.dataset.raw || resultDiv.innerText || '';
-               copyLargeResult(raw);
+               const raw = resultDiv.dataset.raw || resultDiv.value || '';
+               openResultInTab(raw);
             });
             
-         })(); // ← This closing was missing
+         })(); // Properly closed IIFE
       </script> 
+   <!-- Clipboard toast popup -->
+   <div id="clipboardToast">✅ Copied to clipboard</div>
    </body>
 </html>
