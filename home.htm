@@ -298,6 +298,41 @@
         show-cursor 0.01s 3.8s forwards,
         blink 0.75s step-end 3.8s infinite;
     }
+
+    /* ========== MOBILE NAV (CSS fallback — no Tailwind dependency) ========== */
+    .desktop-nav-links,
+    .desktop-nav-actions {
+      display: flex;
+      align-items: center;
+    }
+    #hamburgerBtn {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+    }
+    #mobileMenu {
+      display: none;
+    }
+
+    @media (max-width: 767px) {
+      .desktop-nav-links,
+      .desktop-nav-actions {
+        display: none !important;
+      }
+      #hamburgerBtn {
+        display: flex !important;
+      }
+    }
+
+    @media (min-width: 768px) {
+      #hamburgerBtn {
+        display: none !important;
+      }
+      #mobileMenu {
+        display: none !important;
+      }
+    }
   </style>
 </head>
 <body class="antialiased" data-theme="light">
@@ -312,12 +347,12 @@
             TXT<span style="color:var(--brand)">EATER</span>
           </span>
         </div>
-        <div class="hidden md:flex items-center gap-8 text-sm font-medium">
+        <div class="desktop-nav-links hidden md:flex items-center gap-8 text-sm font-medium">
           <a href="#features" class="muted-var hover:text-var cursor-pointer">Features</a>
           <a href="#pricing" class="muted-var hover:text-var cursor-pointer">Pricing</a>
           <a href="#about" class="muted-var hover:text-var cursor-pointer">About</a>
         </div>
-        <div class="hidden md:flex items-center gap-3">
+        <div class="desktop-nav-actions hidden md:flex items-center gap-3">
           <button id="themeToggle" class="px-4 py-2 rounded-full border border-var text-sm font-medium text-var">🌙 Dark</button>
           <a href="/tool" class="brand-bg text-white px-5 py-2 rounded-full text-sm font-semibold shadow-sm hover:opacity-90 transition inline-block" style="text-decoration:none;">Get Started</a>
         </div>
@@ -638,7 +673,7 @@
       function toggleMenu() {
         menuOpen = !menuOpen;
         if (menuOpen) {
-          mobileMenu.classList.remove('hidden');
+          mobileMenu.style.display = 'block';
           requestAnimationFrame(() => { mobileMenu.style.maxHeight = mobileMenu.scrollHeight + 'px'; });
           // animate hamburger to X
           const lines = hamburgerBtn.querySelectorAll('.hamburger-line');
@@ -647,7 +682,7 @@
           lines[2].style.transform = 'translateY(-7px) rotate(-45deg)';
         } else {
           mobileMenu.style.maxHeight = '0';
-          setTimeout(() => { mobileMenu.classList.add('hidden'); }, 350);
+          setTimeout(() => { mobileMenu.style.display = 'none'; }, 350);
           const lines = hamburgerBtn.querySelectorAll('.hamburger-line');
           lines[0].style.transform = '';
           lines[1].style.opacity = '1';
